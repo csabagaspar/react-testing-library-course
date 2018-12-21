@@ -4,13 +4,16 @@ import 'react-testing-library/cleanup-after-each'
 
 // 0⃣ 🐨 you're gonna need these
 // import React from 'react'
+import React from 'react'
 // import {render} from 'react-testing-library'
+import {render} from 'react-testing-library'
 // import {Countdown} from '../countdown'
+import {Countdown} from '../countdown'
 
 // because we're doing a time-based thing in our component, we need to force
 // time in our tests to pass by a determanistic amount.
 // 3⃣ 🐨 Use the `jest.useFakeTimers` API:
-// jest.useFakeTimers() // 💯
+jest.useFakeTimers() // 💯
 // 📖 https://jestjs.io/docs/en/timer-mocks.html
 
 // we need to spy on console.error so we can assert that it's not called
@@ -18,21 +21,31 @@ import 'react-testing-library/cleanup-after-each'
 // was unmounted)
 // 5⃣ 🐨 before each test use `jest.spyOn` to spy on console.error
 // 📖 https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname
+beforeEach(() => {
+  jest.spyOn(console, 'error')
+})
 // 6⃣ 🐨 after each test, use `mockRestore` to cleanup after yourself.
 // 📖 https://jestjs.io/docs/en/mock-function-api#mockfnmockrestore
+afterEach(() => {
+  console.error.mockRestore()
+})
 
 test('does not attempt to set state when unmounted (to prevent memory leaks)', () => {
   // 1⃣ 🐨 render the countdown
+  const {unmount} = render(<Countdown />)
   // 2⃣ 🐨 unmount the component
   // 📖 https://github.com/kentcdodds/react-testing-library/blob/b18ff5b96210a887e784b9f53bd886e11b6ed5e0/README.md#unmount
+  unmount()
   //
   // now that our component has unmounted, we need to make time pass.
   // 4⃣ 🐨 Use `jest.runOnlyPendingTimers` to make time pass.
   // 📖 https://jestjs.io/docs/en/timer-mocks.html
+  jest.runOnlyPendingTimers()
   //
   // 7⃣ 🐨 Make an assertion that console.error was not called
   // (then, you can test that it worked by removing the componentWillUnMount in
   // the countdown component)
+  expect(console.error).not.toHaveBeenCalled()
 })
 
 //////// Elaboration & Feedback /////////
