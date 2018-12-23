@@ -5,13 +5,14 @@ import 'react-testing-library/cleanup-after-each'
 import React from 'react'
 import {render, fireEvent, wait} from 'react-testing-library'
 // 3⃣ 🐨 remove this import
-import {loadGreeting as mockLoadGreeting} from '../api'
+//import {loadGreeting as mockLoadGreeting} from '../api'
 // 5⃣ 🐨 go into greeting-loader-01-mocking and make changes there:
 // 1. Use defaultProps = {loadGreeting}
 // 2. change `loadGreeting` to `this.props.loadGreeting`
-import {GreetingLoader} from '../greeting-loader-01-mocking'
+import {GreetingLoader} from '../greeting-loader-02-dependency-injection'
 
 // 4⃣ 🐨 remove this jest.mock call
+/*
 jest.mock('../api', () => {
   return {
     // 1⃣ 🐨 move the jest.fn down to a variable assignment in the test
@@ -20,11 +21,18 @@ jest.mock('../api', () => {
     ),
   }
 })
+*/
 
 test('loads greetings on click', async () => {
+  const mockLoadGreeting = jest.fn(subject =>
+    Promise.resolve({data: {greeting: `Hi ${subject}`}}),
+  )
   // 2⃣ 🐨 create the variable mockLoadGreeting right here and pass
-  // "loadGreeting" as a prop to GreetingLoader
-  const {getByLabelText, getByText, getByTestId} = render(<GreetingLoader />)
+  // "loadGreeting" as  a prop to GreetingLoader
+  const {getByLabelText, getByText, getByTestId} = render(
+    <GreetingLoader loadGreeting={mockLoadGreeting} />,
+  )
+
   const nameInput = getByLabelText(/name/i)
   const loadButton = getByText(/load/i)
   nameInput.value = 'Mary'
