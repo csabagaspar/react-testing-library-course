@@ -1,20 +1,34 @@
 // You'll be building this...
 import React from 'react'
 
-function Editor() {
-  return (
-    <form>
-      <label htmlFor="title-input">Title</label>
-      <input id="title-input" />
+class Editor extends React.Component {
+  state = {
+    disabled: false,
+  }
 
-      <label htmlFor="content-input">Content</label>
-      <textarea id="content-input" />
+  handleSubmit = e => {
+    e.preventDefault()
+    this.setState({
+      disabled: true,
+    })
+  }
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label htmlFor="title-input">Title</label>
+        <input id="title-input" />
 
-      <label htmlFor="tags-input">Tags</label>
-      <input id="tags-input" />
+        <label htmlFor="content-input">Content</label>
+        <textarea id="content-input" />
 
-      <button type="submit">Submit</button>
-    </form>
-  )
+        <label htmlFor="tags-input">Tags</label>
+        <input id="tags-input" />
+
+        <button type="submit" disabled={this.state.disabled}>
+          Submit
+        </button>
+      </form>
+    )
+  }
 }
 export {Editor}
