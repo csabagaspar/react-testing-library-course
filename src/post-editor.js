@@ -1,5 +1,6 @@
 // You'll be building this...
 import React from 'react'
+import {Redirect} from 'react-router'
 import {savePost} from './api'
 
 class Editor extends React.Component {
@@ -24,7 +25,9 @@ class Editor extends React.Component {
     })
   }
   render() {
-    return (
+    return this.state.saved ? (
+      <Redirect to="/" />
+    ) : (
       <form onSubmit={this.handleSubmit}>
         <label htmlFor="title-input">Title</label>
         <input id="title-input" name="title" />

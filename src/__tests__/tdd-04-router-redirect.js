@@ -4,12 +4,20 @@ import 'react-testing-library/cleanup-after-each'
 
 import React from 'react'
 // 🐨 you'll need to also import wait from 'react-testing-library' here
-import {render, fireEvent} from 'react-testing-library'
+import {render, fireEvent, wait} from 'react-testing-library'
 // 🐨 import your mocked version of the Redirect component
+import {Redirect as MockRedirect} from 'react-router'
+import {Router} from 'react-router-dom'
+import {createMemoryHistory} from 'history'
 import {savePost as mockSavePost} from '../api'
 import {Editor} from '../post-editor'
 
 // 🐨 you'll need to mock react-router's Redirect component here
+jest.mock('react-router', () => {
+  return {
+    Redirect: jest.fn(() => null),
+  }
+})
 
 jest.mock('../api', () => {
   return {
@@ -20,13 +28,19 @@ jest.mock('../api', () => {
 afterEach(() => {
   // 🐨 clear the Redirect mock here
   mockSavePost.mockClear()
+  MockRedirect.mockClear()
 })
 
 // 🐨 unskip this test
 // 🐨 you'll need to make this an async test
-test.skip('renders a form with title, content, tags, and a submit button', () => {
+test('renders a form with title, content, tags, and a submit button', async () => {
+  const history = createMemoryHistory({initialEntries: ['/']})
   const fakeUser = {id: 'user-1'}
-  const {getByLabelText, getByText} = render(<Editor user={fakeUser} />)
+  const {getByLabelText, getByText} = render(
+    <Router history={history}>
+      <Editor user={fakeUser} />
+    </Router>,
+  )
   const fakePost = {
     title: 'Test Title',
     content: 'Test content',
@@ -39,12 +53,22 @@ test.skip('renders a form with title, content, tags, and a submit button', () =>
 
   fireEvent.click(submitButton)
 
-  expect(submitButton).toBeDisabled()
+  //expect(submitButton).toBeDisabled()
 
   expect(mockSavePost).toHaveBeenCalledTimes(1)
   expect(mockSavePost).toHaveBeenCalledWith({
     ...fakePost,
     authorId: fakeUser.id,
+  })
+
+  await wait(() => {
+    expect(MockRedirect).toHaveBeenCalledTimes(1)
+    expect(MockRedirect).toHaveBeenCalledWith(
+      {
+        to: '/',
+      },
+      {},
+    )
   })
 
   // 🐨 wait until your mock Redirect component has been called once
