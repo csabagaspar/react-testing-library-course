@@ -60,6 +60,7 @@ test('renders a form with title, content, tags, and a submit button', () => {
   expect(mockSavePost).toHaveBeenCalledTimes(1)
   expect(mockSavePost).toHaveBeenCalledWith({
     authorId: fakeUser.id,
+    date: expect.any(String),
     ...fakePost,
   })
 })

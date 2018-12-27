@@ -6,6 +6,7 @@ import {savePost} from './api'
 class Editor extends React.Component {
   state = {
     saved: false,
+    redirect: false,
   }
 
   handleSubmit = e => {
@@ -17,15 +18,16 @@ class Editor extends React.Component {
         content: content.value,
         tags: tags.value.split(',').map(t => t.trim()),
         authorId: this.props.user.id,
+        date: new Date().toISOString(),
       }
-      savePost(newPost)
+      savePost(newPost).then(() => this.setState({redirect: true}))
     }
     this.setState({
       saved: true,
     })
   }
   render() {
-    return this.state.saved ? (
+    return this.state.redirect ? (
       <Redirect to="/" />
     ) : (
       <form onSubmit={this.handleSubmit}>

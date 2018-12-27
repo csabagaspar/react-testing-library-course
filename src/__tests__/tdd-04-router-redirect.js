@@ -58,6 +58,7 @@ test('renders a form with title, content, tags, and a submit button', async () =
   expect(mockSavePost).toHaveBeenCalledTimes(1)
   expect(mockSavePost).toHaveBeenCalledWith({
     ...fakePost,
+    date: expect.any(String),
     authorId: fakeUser.id,
   })
 
