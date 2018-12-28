@@ -39,17 +39,26 @@ const userBuilder = build('User').fields({
 // 🐨 Take the common parts of both tests and create a renderEditor function
 // that does everything those tests both need to do.
 
-// 🐨 unskip this test
-test.skip('renders a form with title, content, tags, and a submit button', async () => {
+function renderEditor() {
   const fakeUser = userBuilder()
-  const {getByLabelText, getByText} = render(<Editor user={fakeUser} />)
+  const utils = render(<Editor user={fakeUser} />)
   const fakePost = postBuilder()
-  const preDate = Date.now()
 
-  getByLabelText(/title/i).value = fakePost.title
-  getByLabelText(/content/i).value = fakePost.content
-  getByLabelText(/tags/i).value = fakePost.tags.join(', ')
-  const submitButton = getByText(/submit/i)
+  utils.getByLabelText(/title/i).value = fakePost.title
+  utils.getByLabelText(/content/i).value = fakePost.content
+  utils.getByLabelText(/tags/i).value = fakePost.tags.join(', ')
+  const submitButton = utils.getByText(/submit/i)
+  return {
+    ...utils,
+    submitButton,
+    fakeUser,
+    fakePost,
+  }
+}
+// 🐨 unskip this test
+test('renders a form with title, content, tags, and a submit button', async () => {
+  const preDate = Date.now()
+  const {fakePost, fakeUser, submitButton} = renderEditor()
 
   fireEvent.click(submitButton)
 
@@ -73,19 +82,10 @@ test.skip('renders a form with title, content, tags, and a submit button', async
 })
 
 // 🐨 unskip this test
-test.skip('renders an error message from the server', async () => {
+test('renders an error message from the server', async () => {
   const testError = 'test error'
   mockSavePost.mockRejectedValueOnce({data: {error: testError}})
-  const fakeUser = userBuilder()
-  const {getByLabelText, getByText, getByTestId} = render(
-    <Editor user={fakeUser} />,
-  )
-  const fakePost = postBuilder()
-
-  getByLabelText(/title/i).value = fakePost.title
-  getByLabelText(/content/i).value = fakePost.content
-  getByLabelText(/tags/i).value = fakePost.tags.join(', ')
-  const submitButton = getByText(/submit/i)
+  const {getByTestId, submitButton} = renderEditor()
 
   fireEvent.click(submitButton)
 
