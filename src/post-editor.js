@@ -7,6 +7,7 @@ class Editor extends React.Component {
   state = {
     saved: false,
     redirect: false,
+    error: null,
   }
 
   handleSubmit = e => {
@@ -20,11 +21,14 @@ class Editor extends React.Component {
         authorId: this.props.user.id,
         date: new Date().toISOString(),
       }
-      savePost(newPost).then(() => this.setState({redirect: true}))
+      this.setState({
+        saved: true,
+      })
+      savePost(newPost).then(
+        () => this.setState({redirect: true}),
+        response => this.setState({saved: false, error: response.data.error}),
+      )
     }
-    this.setState({
-      saved: true,
-    })
   }
   render() {
     return this.state.redirect ? (
@@ -43,6 +47,9 @@ class Editor extends React.Component {
         <button type="submit" disabled={this.state.saved}>
           Submit
         </button>
+        {this.state.error ? (
+          <div data-testid="post-error">{this.state.error}</div>
+        ) : null}
       </form>
     )
   }

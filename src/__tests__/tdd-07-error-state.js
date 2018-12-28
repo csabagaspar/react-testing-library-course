@@ -4,7 +4,7 @@ import 'react-testing-library/cleanup-after-each'
 
 import React from 'react'
 // 🐨 you're going to need waitForElement
-import {render, fireEvent, wait} from 'react-testing-library'
+import {render, fireEvent, wait, waitForElement} from 'react-testing-library'
 import {build, fake, sequence} from 'test-data-bot'
 import {Redirect as MockRedirect} from 'react-router'
 import {savePost as mockSavePost} from '../api'
@@ -38,7 +38,7 @@ const userBuilder = build('User').fields({
 })
 
 // 🐨 unskip this test
-test.skip('renders a form with title, content, tags, and a submit button', async () => {
+test('renders a form with title, content, tags, and a submit button', async () => {
   const fakeUser = userBuilder()
   const {getByLabelText, getByText} = render(<Editor user={fakeUser} />)
   const fakePost = postBuilder()
@@ -70,6 +70,25 @@ test.skip('renders a form with title, content, tags, and a submit button', async
   expect(MockRedirect).toHaveBeenCalledWith({to: '/'}, {})
 })
 
+test('render error', async () => {
+  mockSavePost.mockRejectedValueOnce({data: {error: 'some error'}})
+
+  const fakeUser = userBuilder()
+  const {getByLabelText, getByText, getByTestId} = render(
+    <Editor user={fakeUser} />,
+  )
+  const fakePost = postBuilder()
+
+  getByLabelText(/title/i).value = fakePost.title
+  getByLabelText(/content/i).value = fakePost.content
+  getByLabelText(/tags/i).value = fakePost.tags.join(', ')
+  const submitButton = getByText(/submit/i)
+
+  fireEvent.click(submitButton)
+  const postError = await waitForElement(() => getByTestId('post-error'))
+  expect(postError).toHaveTextContent(/some error/i)
+  expect(submitButton).not.toBeDisabled()
+})
 // 🐨 add a new test here to verify that it renders a server error.
 // it's very similar to the test above, but it should:
 // at the top: mockSavePost.mockRejectedValueOnce({data: {error: 'some error'}})
